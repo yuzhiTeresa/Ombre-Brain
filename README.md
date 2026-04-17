@@ -417,3 +417,4 @@ If using Claude Code, `.claude/settings.json` configures a `SessionStart` hook t
 ## License
 
 MIT
+
