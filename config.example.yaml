@@ -28,9 +28,11 @@ log_level: "INFO"
 merge_threshold: 75
 
 # --- Dehydration API / 脱水压缩 API 配置 ---
-# Uses a cheap LLM for intelligent compression; auto-degrades to local
-# keyword extraction if API is unavailable
-# 用廉价 LLM 做智能压缩，API 不可用时自动降级到本地关键词提取
+# Uses a cheap LLM for intelligent compression. API is required; if the
+# configured key/endpoint is unavailable, hold/grow will raise an explicit
+# error instead of silently degrading (see BEHAVIOR_SPEC.md 三、降级行为表).
+# 用廉价 LLM 做智能压缩。API 为必需；如 key/endpoint 不可用，
+# hold/grow 会直接报错而非静默降级（详见 BEHAVIOR_SPEC.md 三、降级行为表）。
 dehydration:
   # Supports any OpenAI-compatible API: DeepSeek / Ollama / LM Studio / vLLM / Gemini etc.
   # 支持所有 OpenAI 兼容 API：DeepSeek / Ollama / LM Studio / vLLM / Gemini 等
@@ -58,6 +60,18 @@ decay:
     base: 1.0                     # Base weight / 基础权重
     arousal_boost: 0.8            # Arousal boost coefficient / 唤醒度加成系数
 
+# --- Embedding / 向量化配置 ---
+# Uses embedding API for semantic similarity search
+# 通过 embedding API 实现语义相似度搜索
+# You can configure embedding independently from dehydration.
+# If api_key is omitted, reuses the same API key (OMBRE_API_KEY) and base_url from dehydration config
+# 你可以把 embedding 独立配置；若 api_key 留空，复用脱水配置的 API key 和 base_url
+embedding:
+  enabled: true                   # Enable embedding / 启用向量化
+  model: "gemini-embedding-001"   # Embedding model / 向量化模型
+  # base_url: "https://generativelanguage.googleapis.com/v1beta/openai"
+  # api_key: ""                  
+
 # --- Scoring weights / 检索权重参数 ---
 # total = topic(×4) + emotion(×2) + time(×1.5) + importance(×1)
 scoring_weights:
@@ -77,6 +91,6 @@ wikilink:
   use_tags: false
   use_domain: true
   use_auto_keywords: true
-  auto_top_k: 8
-  min_keyword_len: 2
+  auto_top_k: 4
+  min_keyword_len: 3
   exclude_keywords: []
